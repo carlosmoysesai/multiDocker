@@ -1,0 +1,84 @@
+version: '3.8'
+services:  
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - api-iot-spring-boot
+      - front-end-react
+    networks:
+      - app_network
+    dns:
+      - 8.8.8.8
+      - 4.4.4.4
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+  
+  postgres:
+    image: postgres
+    container_name: postgres
+    environment:
+      POSTGRES_DB: iot_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+  
+  api-iot-spring-boot:
+    build: api-iot-spring-boot/
+    image: api-iot-spring-boot
+    container_name: apispring
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/iot_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345678
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+    
+  api-iot-express:
+    build: api-iot-express/
+    image: api-iot-express
+    container_name: api-iot-express
+    ports:
+      - "3000:3000"
+    environment:
+      MONGODB_URL: mongodb://mongo:27017/iot_db
+    depends_on:
+      - mongo
+
+  front-end-react:
+    build: front-end-react/
+    image: front-end-react
+    container_name: frontendreact
+    ports:
+      - "3001:3000"
+    depends_on:
+      - api-iot-spring-boot
+      - api-iot-express
+    networks:
+      - app_network
+  
+volumes:
+  mongo-data:
+  postgres-data:
+
+
+networks:
+  app_network:
+    driver: bridge
