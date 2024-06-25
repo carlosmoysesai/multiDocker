@@ -1,5 +1,6 @@
 {
   "name": "front-end-react",
+  "homepage": "http://localhost/react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
