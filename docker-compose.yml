@@ -61,7 +61,7 @@ services:
       - mongo
 
   front-end-react:
-    build: front-end-react/
+    build: ./front-end-react/
     image: front-end-react
     container_name: frontendreact
     ports:
@@ -79,4 +79,4 @@ volumes:
 
 networks:
   app_network:
-    external: true
+    driver: bridge
