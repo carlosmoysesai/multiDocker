@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/carlosmoysesai/multiDocker'  // Altere para a URL do seu repositório Git e o nome do branch correto
+                git branch: 'main', url: 'https://github.com/carlosmoysesai/multiDocker'  // URL do seu repositório Git e o nome do branch correto
             }
         }
         stage('Build Docker Images') {
