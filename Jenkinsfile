@@ -46,7 +46,7 @@ pipeline {
                 subject: "Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) succeeded",
                 body: "Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) succeeded.",
                 recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
-                to: 'yuriflausino14@gmail.com'
+                to: 'carlos.moyses@gmail.com'
             )
         }
         failure {
