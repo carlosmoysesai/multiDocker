@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
-const Event = require('./models/Event');
+const Event = require('./api/models/Event');
 
 const app = express();
 app.use(bodyParser.json());

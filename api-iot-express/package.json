@@ -1,18 +1,21 @@
 {
   "name": "api-iot-express",
-"version": "1.0.0",
+  "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "body-parser": "^1.20.2",
+    "config": "^3.3.12",
+    "consign": "^0.1.6",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.0"
-  }
+  },
+  "description": ""
 }
