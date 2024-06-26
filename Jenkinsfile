@@ -1,14 +1,20 @@
 pipeline {
     agent any
+    
     environment {
-        DOCKER_COMPOSE_FILE = "docker-compose.yml"  // Arquivo docker-compose
+        DOCKER_COMPOSE_FILE = "docker-compose.yml"
     }
+    
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/carlosmoysesai/multiDocker'  // URL do seu repositório Git e o nome do branch correto
+                script {
+                    deleteDir() // Limpa o diretório de trabalho antes de clonar (opcional)
+                    git branch: 'main', url: 'https://github.com/carlosmoysesai/multiDocker'
+                }
             }
         }
+        
         stage('Build Docker Images') {
             steps {
                 script {
@@ -16,23 +22,24 @@ pipeline {
                 }
             }
         }
+        
         stage('Stop and Remove Existing Containers') {
             steps {
                 script {
-                    // Remove todos os containers definidos no docker-compose.yml
                     sh "docker-compose -f ${DOCKER_COMPOSE_FILE} down"
                 }
             }
         }
+        
         stage('Run New Containers') {
             steps {
                 script {
-                    // Inicia todos os containers em modo detached
                     sh "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"
                 }
             }
         }
     }
+    
     post {
         success {
             emailext(
