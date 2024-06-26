@@ -54,7 +54,7 @@ pipeline {
                 subject: "Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) failed",
                 body: "Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) failed. Check Jenkins for details.",
                 recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
-                to: 'yuriflausino14@gmail.com'
+                to: 'carlos.moyses@gmail.com'
             )
         }
     }
