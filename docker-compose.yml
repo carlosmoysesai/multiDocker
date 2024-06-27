@@ -22,6 +22,11 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+    - app_network
+    environment:
+      MONGO_HOST: mongo # Use the service name 'mongo' to connect within the same network
+      MONGO_PORT: 27017
   
   postgres:
     image: postgres
@@ -36,7 +41,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
   
   api-iot-spring-boot:
-    build: api-iot-spring-boot/
+    build: ./api-iot-spring-boot/
     image: api-iot-spring-boot
     container_name: apispring
     ports:
@@ -51,15 +56,15 @@ services:
       - app_network
     
   api-iot-express:
-    build: api-iot-express/
+    build: ./api-iot-express/
     image: api-iot-express
-    container_name: api-iot-express
+    container_name: apiexpress
     ports:
       - "3001:3001"
-    environment:
-      MONGODB_URL: mongodb://mongo:27017/iot_db
     depends_on:
       - mongo
+    networks:
+      - app_network
 
   front-end-react:
     build: ./front-end-react/
