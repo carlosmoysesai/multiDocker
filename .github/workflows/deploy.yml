@@ -1,71 +1,54 @@
-name: Deploy Application
-
+name: Build on DockerHub and Deploy to AWS
 on:
-  schedule:
-    - cron: '0 0 * * *' # Executa todos os dias à meia-noite
   push:
     branches:
-      - main # Ou o branch que você deseja monitorar
-
+      - main
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./api-iot-express/
+          push: true
+          dockerfile: ./Dockerfile
+          tags: carlosmoyses/cddemo:latest
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v2
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Build Docker image
-      run: docker build -t my_image_name:latest .
-
-    - name: Push Docker image to DockerHub
-      run: docker push my_image_name:latest
-
-    - name: Prepare SSH key
-      run: echo "${{ secrets.AWS_EC2_KEY }}" > deploy_key.pem
-
-    - name: Set key permissions
-      run: chmod 600 deploy_key.pem
-
-    - name: Deploy to AWS EC2
+        username: ${{ env.DOCKERHUB_USERNAME }}
+        password: ${{ env.DOCKERHUB_TOKEN }}
+    - name: Set permissions for private key
       run: |
-        ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
-          cd /path/to/your/compose/files
-          docker-compose down
-          docker-compose pull
-          docker-compose up -d
-        EOF
-
-    - name: Send email notification
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 465
-        username: ${{ secrets.EMAIL_USERNAME }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: Deployment Status
-        to: you@example.com
-        body: The deployment has been successful.
-        secure: true
-
-    - name: Check job status and send failure email
-      if: failure()
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 465
-        username: ${{ secrets.EMAIL_USERNAME }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: Deployment Failed
-        to: you@example.com
-        body: The deployment has failed. Please check the logs for details.
-        secure: true
+        echo "${{ env.AWS_PRIVATE_KEY }}" > key.pem
+        chmod 600 key.pem
+    - name: Pull Docker image
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-117-156-14.us-east-2.compute.amazonaws.com 'sudo docker pull carlosmoyses/cddemo:latest'
+    - name: Stop running container
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-117-156-14.us-east-2.compute.amazonaws.com 'sudo docker stop cddemo || true'
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-117-156-14.us-east-2.compute.amazonaws.com 'sudo docker rm cddemo || true'
+    - name: Run new container
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-117-156-14.us-east-2.compute.amazonaws.com 'sudo docker run -d --name cddemo -p 80:3000 carlosmoyses/cddemo:latest'
