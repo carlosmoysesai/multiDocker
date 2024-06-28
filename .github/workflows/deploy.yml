@@ -55,14 +55,14 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-117-156-14.us-east-2.compute.amazonaws.com 'sudo docker run -d --name cddemo -p 80:3000 carlosmoyses/cddemo:latest'
 
-      - name: Send notification email
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: GitHub Actions Job Status
-          body: The job has completed successfully.
-          to: narbokrage@gmail.com
-          from: ${{ secrets.EMAIL_USERNAME }}
+      # - name: Send notification email
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: smtp.gmail.com
+      #     server_port: 465
+      #     username: ${{ secrets.EMAIL_USERNAME }}
+      #     password: ${{ secrets.EMAIL_PASSWORD }}
+      #     subject: GitHub Actions Job Status
+      #     body: The job has completed successfully.
+      #     to: narbokrage@gmail.com
+      #     from: ${{ secrets.EMAIL_USERNAME }}
