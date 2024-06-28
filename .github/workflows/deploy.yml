@@ -23,7 +23,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: ./api-iot-express/
+          context: ./front-end-react/
           push: true
           dockerfile: ./Dockerfile
           tags: carlosmoyses/cddemo:latest
