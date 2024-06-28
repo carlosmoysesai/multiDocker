@@ -64,5 +64,5 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: GitHub Actions Job Status
           body: The job has completed successfully.
-          to: carlos.moyses@gmail.com
+          to: narbokrage@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
