@@ -18,15 +18,16 @@ services:
   mongo:
     image: mongo:latest
     container_name: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    networks:
-    - app_network
     environment:
       MONGO_HOST: mongo # Use the service name 'mongo' to connect within the same network
       MONGO_PORT: 27017
+    ports:
+      - "27017:27017"
+    networks:
+    - app_network
+    volumes:
+      - mongo-data:/data/db
+      - mongo-data:/data/configdb
   
   postgres:
     image: postgres
@@ -37,6 +38,8 @@ services:
       POSTGRES_PASSWORD: 12345678
     ports:
       - "5432:5432"
+    networks:
+    - app_network
     volumes:
       - postgres-data:/var/lib/postgresql/data
   
@@ -54,6 +57,8 @@ services:
       - postgres
     networks:
       - app_network
+    volumes:
+      - api-data:/data/apispring
     
   api-iot-express:
     build: ./api-iot-express/
@@ -65,6 +70,8 @@ services:
       - mongo
     networks:
       - app_network
+    volumes:
+      - api-data:/data/apiexpress
 
   front-end-react:
     build: ./front-end-react/
@@ -77,11 +84,14 @@ services:
       - api-iot-express
     networks:
       - app_network
+    volumes:
+      - front-data:/data/front
   
 volumes:
   mongo-data:
   postgres-data:
-
+  api-data:
+  front-data:
 
 networks:
   app_network:
